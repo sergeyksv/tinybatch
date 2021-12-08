@@ -1,5 +1,4 @@
 ### Tiny batch - safe way to execute sequentional data retrieval server side
-[![Build Status](https://travis-ci.org/sergeyksv/tinybatch.png?branch=master)](https://travis-ci.org/sergeyksv/tinybatch)
 
 ### Introduction
 Very soon network latency migth not be issue anymore. However as of now executing function (REST calls) from client are suffering from network latency especially when functions can not be executed in parallel and have dependency of each other.
