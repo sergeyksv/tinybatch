@@ -1,0 +1,25 @@
+{
+    "author": "Sergey Korotkov <sergeyksv@gmail.com>",
+    "name": "tinybatch",
+    "version": "0.1.1",
+    "repository": {
+      "type": "git",
+      "url": "git://github.com/sergeyksv/tinybatch.git"
+    },
+    "contributors": [
+      {
+        "name": "Sergey Korotkov",
+        "email": "sergeyksv@gmail.com"
+      }
+    ],
+    "scripts": {
+        "test": "mocha"
+    },
+    "dependencies": {
+        "lodash": "^4.17.21",
+        "mocha": "^9.1.3"
+    },
+    "devDependencies": {
+        "mocha": "^9.1.3"
+    }
+}
