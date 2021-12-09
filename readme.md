@@ -111,8 +111,19 @@ Pretty much standard array.push
 
 ### Loop
 
-Used to execute repetetive actions in a loop. Repetetive actions should be defined using `{}` batch key. Iteratee value is provided through `$loop` variable. 
-By default execute action in series one by one. This behavior can be changed with `limit` paramater which will define number of "threads". When limit is >1 (which is default) execution sequence is not guaranteed
+Used to execute repetetive actions in a loop. Repetetive actions should be defined using `{}` batch key. Iteratee value is provided through `$loop` variable and definded as `on` parameter
+By default execute action in series one by one. This behavior can be changed with `limit` paramater which will define number of "threads". When limit is >1 (which is default) execution sequence is not guaranteed. 
+```
+"loop":{
+    "()":{"on":[{v:1},{v:2},{v:3},{v:4}],"limit":3},
+    "{}":{ 
+        "dummy":{
+            "()":"$loop",
+            "union":"result"
+        }
+    }
+}
+```
 
 ### next
 Used to execute next level of functions that can depend on result obtained on previous level. No local data passed to next level expect thouse that was purposely saved in batch context. `next` can be exeuted conditionally by providing "if" parameter which value is examined like inside if condition in order to execute next block. 
