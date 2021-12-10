@@ -105,6 +105,10 @@ Used to remove/delete certain varibles.
 
 Lodash `_.concat` 
 
+### Compact
+
+Lodash `_.compact` 
+
 ### Push
 
 Pretty much standard array.push

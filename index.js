@@ -15,7 +15,11 @@ async function union(bctx, params, data) {
 }
 
 async function concat(bctx, params, data) {
-    bctx.result[params] = _.concat(bctx.result[params] || [], data);
+  bctx.result[params] = _.concat(bctx.result[params] || [], data);
+}
+
+async function compact(bctx, params, data) {
+  return _.compact(data);
 }
 
 async function push(bctx, params, data) {
@@ -27,14 +31,21 @@ async function push(bctx, params, data) {
 function _pluck(path, idx, obj) {
   const part = obj[path[idx]];
 
-  if (path.length === 1 && _.isArray(obj)) {
+  if (_.isUndefined(part) && _.isArray(obj)) {
+    // arrays are "transparent for pluck", we just tapping inside to any level deep
     return _.flatMap(obj, (e) => _pluck(path, idx, e));
+  } else if (idx == path.length - 1) {
+    // last path element, return what is on the way
+    return part;
   } else if (_.isArray(part)) {
+    // when not last in path element we will tap into array
     return _.flatMap(part, (e) => _pluck(path, idx + 1, e));
   } else if (_.isObject(part)) {
+    // when not last in the path, tap into object
     return _pluck(path, idx + 1, part);
   } else {
-    return idx == path.length - 1 ? [part] : [];
+    // path not complete, empty result
+    return undefined;
   }
 }
 
@@ -69,7 +80,8 @@ const batch_actions = {
   omit,
   loop,
   concat,
-  push
+  push,
+  compact
 };
 
 function _lookup(bctx, v, data, ldata) {

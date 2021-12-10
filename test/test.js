@@ -91,6 +91,185 @@ describe('Batch', function() {
     })
   })
 
+    describe('action pluck', function() {
+        const bctx = {
+            actions: {
+                dummy:async (prm) => {
+                    return [
+                                {
+                                    a:[
+                                        {
+                                            b:1,
+                                            c:{
+                                                a:1,b:1
+                                            }
+                                        },
+                                        {   
+                                            b:2,
+                                            a:3
+                                        },
+                                        {   
+                                            b:2,
+                                            a:3
+                                        }
+                                    ],
+                                    c:{
+                                        a:1,b:1
+                                    }
+                                }
+                            ];
+                },
+                dummy2:async (prm) => {
+                    return  {
+                                a:[
+                                    {
+                                        b:1,
+                                        c:{
+                                            a:1,b:1
+                                        }
+                                    },
+                                    {
+                                        b:2
+                                    }
+                                ],
+                                c:{
+                                    a:1,
+                                    b:1
+                                }
+                            };
+                }                
+            }
+        }
+
+        it("should traverse array transparently", async function () {
+            delete bctx.result;
+            var res = await run_batch(bctx,{
+                "dummy":{
+                    "pluck":{
+                        "()":["a.b"],
+                        "save":"res"
+                    }
+                }
+            });
+            assert.deepStrictEqual(bctx.result.res,[1,2,2]);
+        })
+
+        it("non exiting path should resolve to undefined", async function () {
+            delete bctx.result;
+            var res = await run_batch(bctx,{
+                "dummy":{
+                    "pluck":{
+                        "()":["a_a"],
+                        "save":"res"
+                    }
+                }
+            });
+            assert.deepStrictEqual(bctx.result.res,[undefined]);
+        })
+
+        it("should return undefined for missing paths", async function () {
+            delete bctx.result;
+            var res = await run_batch(bctx,{
+                "dummy":{
+                    "pluck":{
+                        "()":["a.a"],
+                        "save":"res"
+                    }
+                }
+            });
+            assert.deepStrictEqual(bctx.result.res,[undefined,3,3]);
+        })
+
+        it("returns undefined for missing paths which can be solved by compact", async function () {
+            delete bctx.result;
+            var res = await run_batch(bctx,{
+                "dummy":{
+                    "pluck":{
+                        "()":["a.a"],
+                        "compact":{
+                            "save":"res"
+                        }
+                    }
+                }
+            });
+            assert.deepStrictEqual(bctx.result.res,[3,3]);
+        })   
+        
+        it("returns duplicates which can be solved by union", async function () {
+            delete bctx.result;
+            var res = await run_batch(bctx,{
+                "dummy":{
+                    "pluck":{
+                        "()":["a.a"],
+                        "compact":{
+                            "union":"res"
+                        }
+                    }
+                }
+            });
+            assert.deepStrictEqual(bctx.result.res,[3]);
+        })         
+
+        describe("running on object", function () {
+            it("should return array on path as is", async function () {
+                delete bctx.result;
+                var res = await run_batch(bctx,{
+                    "dummy2":{
+                        "pluck":{
+                            "()":["a"],
+                            "save":"res"
+                        }
+                    }
+                });
+                assert.deepStrictEqual(bctx.result.res,[{b:1,c:{a:1,b:1}},{b:2}]);
+            })
+
+
+            it("should return object on path as is", async function () {
+                delete bctx.result;
+                var res = await run_batch(bctx,{
+                    "dummy2":{
+                        "pluck":{
+                            "()":["c"],
+                            "save":"res"
+                        }
+                    }
+                });
+                assert.deepStrictEqual(bctx.result.res,{a:1,b:1});
+            }) 
+        })
+
+        describe("running on array", function () {
+            it("should return array for array on path", async function () {
+                delete bctx.result;
+                var res = await run_batch(bctx,{
+                    "dummy2":{
+                        "pluck":{
+                            "()":["a"],
+                            "save":"res"
+                        }
+                    }
+                });
+                assert.deepStrictEqual(bctx.result.res,[{b:1,c:{a:1,b:1}},{b:2}]);
+            })
+
+
+            it("should return array of objects for object on path", async function () {
+                delete bctx.result;
+                var res = await run_batch(bctx,{
+                    "dummy2":{
+                        "pluck":{
+                            "()":["c"],
+                            "save":"res"
+                        }
+                    }
+                });
+                assert.deepStrictEqual(bctx.result.res,{a:1,b:1});
+            }) 
+        })         
+        
+    })
+
   describe('action next', function() {
     const bctx = {
         actions: {
