@@ -184,3 +184,68 @@ function batchCall(batch, data) {
    return batchContext.result;
  }
  ```
+
+## Advanced example
+
+```
+  const batch = {
+    'settings.tomatoForUsers': {
+      '()': {
+        ids: '$idsusers',
+      },
+      save: 'userTomatoSettings'
+    },
+    'workdays.getUsersWorkDays': {
+      '()': {
+        ids: '$idsusers',
+      },
+      save: 'usersWorkDays',
+      pluck: [{
+        '()': ['_id'],
+        union: 'idWorkdays',
+      },{
+        '()': ['intervals.idproject'],
+        union: 'idProjects',
+      }],
+      next: {
+        loop: {
+          '()': { 'on': '$idWorkdays' },
+          '{}': {
+            'timelogs.workdaytimelogs': {
+              '()': {
+                id: '$loop',
+                opt_unfinished: false,
+                sort:{_dtstart: -1},
+                limit: 3,
+              },
+              concat: 'usersTimeLogs',
+              pluck:{
+                '()': ['list.idstory'],
+                union: 'idStories',
+              },
+            },
+          },
+        },
+        'projects.get':{
+          "()":{id:"$idProjects"},
+          pluck:{
+            "()":['list'],
+            save:"projects"
+          }
+        },
+        next:{
+          'stories.get':{
+            "()":{id:"$idStories"},
+            pluck:{
+              "()":['list'],
+              "save":"stories"
+            }
+          }
+        }
+      },
+    },
+    next: {
+      omit: ['idWorkdays','idProjects','idStories'],
+    }
+  };
+  ```
