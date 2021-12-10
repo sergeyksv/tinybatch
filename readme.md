@@ -95,7 +95,17 @@ Lodash `_.union`. Typically used to collect unique ids from multiple function ca
 
 ### Pluck
 
-Legacy alike lodash "_.pluck" functionality. Typically used to collect ids from complex objects or arrays including nested objects and arrays
+Legacy alike lodash "_.pluck" functionality. Typically used to collect ids from complex objects or arrays including nested objects and arrays. `pluck` does not modify context so need to be chained to function that store data
+
+```
+"pluck":{
+    "()":["users.id"],
+    "compact":{
+        "union":"res"
+    }
+}
+```
+Example above traverse data and collected all data from `user.id` path, then remove undefined data and finally save unique selection
 
 ### Omit
 
